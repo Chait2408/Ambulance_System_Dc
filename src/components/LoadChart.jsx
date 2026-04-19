@@ -11,59 +11,60 @@ const AMB_COLORS = {
 export default function LoadChart() {
   const ambulances = useSimStore((s) => s.ambulances);
   const algorithm  = useSimStore((s) => s.algorithm);
-
-  const maxLoad = Math.max(...ambulances.map((a) => a.load), 1);
+  const maxLoad    = Math.max(...ambulances.map((a) => a.load), 1);
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Load distribution</span>
-        <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 font-medium">
+    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px", flexShrink: 0 }}>
+        <span style={sectionLabel}>Load distribution</span>
+        <span style={{ fontSize: "10px", fontWeight: 600, padding: "3px 10px", borderRadius: "12px", background: "#EEEDFE", color: "#534AB7" }}>
           {algorithm.replace("_", " ")}
         </span>
       </div>
 
-      {/* Bar chart */}
-      <div className="flex-1 flex flex-col gap-2 justify-center">
+      {/* Bars */}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-evenly" }}>
         {ambulances.map((amb) => {
-          const pct = Math.round((amb.load / maxLoad) * 100);
-          const color = AMB_COLORS[amb.id] || "#888";
           const isDead = amb.nodeStatus === "dead";
+          const pct    = isDead ? 100 : Math.max((amb.load / maxLoad) * 100, amb.load > 0 ? 8 : 1);
+          const color  = isDead ? "#E24B4A" : AMB_COLORS[amb.id] || "#888";
 
           return (
-            <div key={amb.id} className="flex items-center gap-2">
-              <span className="text-xs font-medium w-12 text-gray-600 shrink-0">{amb.id}</span>
-              <div className="flex-1 bg-gray-100 rounded-full h-4 overflow-hidden">
-                <div
-                  className="h-4 rounded-full transition-all duration-700"
-                  style={{
-                    width: isDead ? "100%" : `${Math.max(pct, 2)}%`,
-                    background: isDead ? "#E24B4A" : color,
-                    opacity: isDead ? 0.5 : 1,
-                  }}
-                />
+            <div key={amb.id} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <span style={{ fontSize: "11px", fontWeight: 600, color: "#555", width: "46px", flexShrink: 0 }}>{amb.id}</span>
+              <div style={{ flex: 1, background: "#f0efea", borderRadius: "6px", height: "18px", overflow: "hidden" }}>
+                <div style={{
+                  height: "100%", borderRadius: "6px",
+                  width: `${pct}%`,
+                  background: color,
+                  opacity: isDead ? 0.5 : 1,
+                  transition: "width 0.6s ease",
+                }} />
               </div>
-              <span className="text-xs w-12 text-right text-gray-500 shrink-0">
-                {isDead ? "DEAD" : `${amb.load} calls`}
+              <span style={{ fontSize: "11px", color: "#999", width: "52px", textAlign: "right", flexShrink: 0 }}>
+                {isDead ? "DEAD" : `${amb.load} call${amb.load !== 1 ? "s" : ""}`}
               </span>
             </div>
           );
         })}
       </div>
 
-      {/* Stats row */}
-      <div className="mt-3 grid grid-cols-3 gap-2 pt-2 border-t border-gray-100">
+      {/* Stats footer */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "8px", paddingTop: "12px", marginTop: "12px", borderTop: "1px solid #f0efea", flexShrink: 0 }}>
         {[
-          { label: "Total calls", value: ambulances.reduce((s, a) => s + a.callsHandled, 0) },
-          { label: "Active",      value: ambulances.filter((a) => a.status !== "available" && a.nodeStatus !== "dead").length },
-          { label: "Available",   value: ambulances.filter((a) => a.status === "available" && a.nodeStatus !== "dead").length },
+          { label: "Total handled", value: ambulances.reduce((s, a) => s + a.callsHandled, 0) },
+          { label: "Active now",    value: ambulances.filter((a) => a.status !== "available" && a.nodeStatus !== "dead").length },
+          { label: "Available",     value: ambulances.filter((a) => a.status === "available"  && a.nodeStatus !== "dead").length },
         ].map(({ label, value }) => (
-          <div key={label} className="text-center">
-            <div className="text-lg font-medium text-gray-800">{value}</div>
-            <div className="text-xs text-gray-400">{label}</div>
+          <div key={label} style={{ textAlign: "center" }}>
+            <div style={{ fontSize: "22px", fontWeight: 500, color: "#3d3d3a" }}>{value}</div>
+            <div style={{ fontSize: "10px", color: "#aaa", marginTop: "1px" }}>{label}</div>
           </div>
         ))}
       </div>
     </div>
   );
 }
+
+const sectionLabel = { fontSize: "11px", fontWeight: 600, color: "#888780", textTransform: "uppercase", letterSpacing: "0.05em" };

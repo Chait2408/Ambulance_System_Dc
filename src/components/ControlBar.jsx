@@ -1,78 +1,68 @@
 import { useSimStore } from "../store/useSimStore";
 
 const ALGORITHMS = [
-  { value: "ROUND_ROBIN",  label: "Round Robin" },
+  { value: "ROUND_ROBIN",  label: "Round Robin"  },
   { value: "LEAST_LOADED", label: "Least Loaded" },
-  { value: "NEAREST",      label: "Nearest" },
+  { value: "NEAREST",      label: "Nearest"      },
 ];
 
 export default function ControlBar({ onTriggerEmergency, onKillPrimary, onReset }) {
-  const running     = useSimStore((s) => s.running);
-  const speed       = useSimStore((s) => s.speed);
-  const algorithm   = useSimStore((s) => s.algorithm);
-  const lamportTime = useSimStore((s) => s.lamportTime);
-  const setRunning  = useSimStore((s) => s.setRunning);
-  const setSpeed    = useSimStore((s) => s.setSpeed);
+  const running      = useSimStore((s) => s.running);
+  const speed        = useSimStore((s) => s.speed);
+  const algorithm    = useSimStore((s) => s.algorithm);
+  const lamportTime  = useSimStore((s) => s.lamportTime);
+  const setRunning   = useSimStore((s) => s.setRunning);
+  const setSpeed     = useSimStore((s) => s.setSpeed);
   const setAlgorithm = useSimStore((s) => s.setAlgorithm);
 
   return (
-    <div className="flex flex-wrap items-center gap-3 px-4 py-3 bg-white border-b border-gray-200">
+    <div style={{
+      display: "flex", alignItems: "center", flexWrap: "wrap", gap: "8px",
+      padding: "10px 16px", background: "#fff",
+      borderBottom: "1px solid #e5e5e3", flexShrink: 0,
+    }}>
       {/* Brand */}
-      <span className="font-semibold text-gray-800 text-sm mr-2">Ambulance Dispatch</span>
+      <span style={{ fontWeight: 700, fontSize: "14px", color: "#3d3d3a", marginRight: "4px" }}>
+        Ambulance Dispatch
+      </span>
 
-      {/* Lamport clock */}
-      <div className="flex items-center gap-1 px-2 py-1 rounded bg-purple-50 border border-purple-200">
-        <span className="text-xs text-purple-500">T:</span>
-        <span className="text-sm font-mono font-medium text-purple-700">{lamportTime}</span>
+      {/* Lamport clock badge */}
+      <div style={{ display: "flex", alignItems: "center", gap: "4px", padding: "4px 10px", borderRadius: "8px", background: "#EEEDFE", border: "1px solid #AFA9EC" }}>
+        <span style={{ fontSize: "11px", color: "#7F77DD", fontWeight: 500 }}>T:</span>
+        <span style={{ fontSize: "13px", fontFamily: "monospace", fontWeight: 700, color: "#534AB7" }}>{lamportTime}</span>
       </div>
 
-      <div className="w-px h-6 bg-gray-200" />
+      <div style={divider} />
 
       {/* Start / Pause */}
-      <button
-        onClick={() => setRunning(!running)}
-        className={`text-sm px-3 py-1.5 rounded font-medium transition-colors ${
-          running
-            ? "bg-amber-100 text-amber-700 hover:bg-amber-200"
-            : "bg-green-100 text-green-700 hover:bg-green-200"
-        }`}
-      >
+      <button onClick={() => setRunning(!running)} style={running ? btnAmber : btnGreen}>
         {running ? "⏸ Pause" : "▶ Start"}
       </button>
 
       {/* Manual emergency */}
-      <button
-        onClick={onTriggerEmergency}
-        className="text-sm px-3 py-1.5 rounded font-medium bg-red-100 text-red-700 hover:bg-red-200"
-      >
+      <button onClick={onTriggerEmergency} style={btnRed}>
         🚨 Emergency
       </button>
 
-      {/* Kill primary */}
-      <button
-        onClick={onKillPrimary}
-        className="text-sm px-3 py-1.5 rounded font-medium bg-gray-100 text-gray-700 hover:bg-gray-200"
-      >
+      {/* Kill dispatcher */}
+      <button onClick={onKillPrimary} style={btnGray}>
         💀 Kill Dispatcher
       </button>
 
       {/* Reset */}
-      <button
-        onClick={onReset}
-        className="text-sm px-3 py-1.5 rounded font-medium bg-gray-100 text-gray-600 hover:bg-gray-200"
-      >
+      <button onClick={onReset} style={btnGray}>
         ↺ Reset
       </button>
 
-      <div className="w-px h-6 bg-gray-200" />
+      <div style={divider} />
 
-      {/* Algorithm selector */}
-      <div className="flex items-center gap-2">
-        <span className="text-xs text-gray-500">Algorithm</span>
+      {/* Algorithm */}
+      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+        <span style={ctrlLabel}>Algorithm</span>
         <select
           value={algorithm}
           onChange={(e) => setAlgorithm(e.target.value)}
-          className="text-xs border border-gray-200 rounded px-2 py-1 bg-white text-gray-700"
+          style={{ fontSize: "12px", border: "1px solid #e0dfda", borderRadius: "8px", padding: "5px 10px", background: "#fff", color: "#3d3d3a", cursor: "pointer" }}
         >
           {ALGORITHMS.map((a) => (
             <option key={a.value} value={a.value}>{a.label}</option>
@@ -80,17 +70,26 @@ export default function ControlBar({ onTriggerEmergency, onKillPrimary, onReset 
         </select>
       </div>
 
-      {/* Speed slider */}
-      <div className="flex items-center gap-2">
-        <span className="text-xs text-gray-500">Speed</span>
+      {/* Speed */}
+      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+        <span style={ctrlLabel}>Speed</span>
         <input
           type="range" min={0.5} max={3} step={0.5}
           value={speed}
           onChange={(e) => setSpeed(Number(e.target.value))}
-          className="w-20 h-1 accent-purple-500"
+          style={{ width: "80px", accentColor: "#7F77DD" }}
         />
-        <span className="text-xs font-medium text-gray-600 w-8">{speed}×</span>
+        <span style={{ fontSize: "12px", fontWeight: 600, color: "#555", minWidth: "26px" }}>{speed}×</span>
       </div>
     </div>
   );
 }
+
+const divider  = { width: "1px", height: "22px", background: "#e5e5e3", flexShrink: 0 };
+const ctrlLabel = { fontSize: "11px", color: "#aaa", fontWeight: 500 };
+
+const baseBtn = { fontSize: "12px", fontWeight: 600, padding: "6px 14px", borderRadius: "8px", cursor: "pointer", border: "none", transition: "opacity 0.2s" };
+const btnGreen = { ...baseBtn, background: "#dcfce7", color: "#16a34a" };
+const btnAmber = { ...baseBtn, background: "#fef3c7", color: "#d97706" };
+const btnRed   = { ...baseBtn, background: "#fee2e2", color: "#dc2626" };
+const btnGray  = { ...baseBtn, background: "#f4f4f3", color: "#555" };
